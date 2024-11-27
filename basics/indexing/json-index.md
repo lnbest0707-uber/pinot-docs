@@ -1,7 +1,6 @@
 ---
 description:  This page describes configuring the JSON index for Apache Pinot.
 ---
-
 # JSON index
 
 The JSON index can be applied to JSON string columns to accelerate value lookups and filtering for the column.
@@ -43,8 +42,8 @@ Without an index, to look up the key and filter records based on the value, Pino
 For example, in order to find all persons whose name is "adam", the query will look like:
 
 ```sql
-SELECT * 
-FROM mytable 
+SELECT *
+FROM mytable
 WHERE JSON_EXTRACT_SCALAR(person, '$.name', 'STRING') = 'adam'
 ```
 
@@ -62,12 +61,14 @@ To enable the JSON index, you can configure the following options in the table c
 | **includePaths**            | Only include the given paths, e.g. "_$.a.b_", "_$.a.c\[\*]_" (mutual exclusive with **excludePaths**). Paths under the included paths will be included, e.g. "_$.a.b.c_" will be included when "_$.a.b_" is configured to be included. | Set\<String> | null (include all paths)                             |
 | **excludePaths**            | Exclude the given paths, e.g. "_$.a.b_", "_$.a.c\[\*]_" (mutual exclusive with **includePaths**). Paths under the excluded paths will also be excluded, e.g. "_$.a.b.c_" will be excluded when "_$.a.b_" is configured to be excluded. | Set\<String> | null (include all paths)                             |
 | **excludeFields**           | Exclude the given fields, e.g. "_b_", "_c_", even if it is under the included paths.                                                                                                                                                   | Set\<String> | null (include all fields)                            |
+| **indexPaths**              | Index the given paths, e.g. `*.*`, `a.**`. Paths matches the indexed paths will be indexed, e.g. `a.**` will index everything whose first layer is "a", `*.*` will index everything with maxLevels=2. This config could work together with other configs, e.g. includePaths, excludePaths, maxLevels but usually does not have to because it should be flexible enough to catch any scenarios.                                                                                                                                                                                                                                        | Set\<String> | null that is equivalent to `**` (include all fields)                            |
 
 ### Recommended way to configure
 
 The recommended way to configure a JSON index is in the `fieldConfigList.indexes` object, within the `json` key.
 
 {% code title="json index defined in tableConfig" %}
+
 ```javascript
 {
   "fieldConfigList": [
@@ -80,7 +81,8 @@ The recommended way to configure a JSON index is in the `fieldConfigList.indexes
           "disableCrossArrayUnnest": true,
           "includePaths": null,
           "excludePaths": null,
-          "excludeFields": null
+          "excludeFields": null,
+          "indexPaths": null
         }
       }
     }
@@ -88,11 +90,13 @@ The recommended way to configure a JSON index is in the `fieldConfigList.indexes
   ...
 }
 ```
+
 {% endcode %}
 
 All options are optional, so the following is a valid configuration that use the default parameter values:
 
 {% code title="json index defined in tableConfig" %}
+
 ```javascript
 {
   "fieldConfigList": [
@@ -106,16 +110,18 @@ All options are optional, so the following is a valid configuration that use the
   ...
 }
 ```
+
 {% endcode %}
 
 ### Deprecated ways to configure JSON indexes
 
-There are two older ways to configure the indexes that can be configured in the `tableIndexConfig` section inside table 
+There are two older ways to configure the indexes that can be configured in the `tableIndexConfig` section inside table
 config.
 
 The first one uses the same JSON explained above, but it is defined inside `tableIndexConfig.jsonIndexConfigs.<column name>`:
 
 {% code title="older way to configure json indexes in table config" %}
+
 ```json
 {
   "tableIndexConfig": {
@@ -126,7 +132,8 @@ The first one uses the same JSON explained above, but it is defined inside `tabl
         "disableCrossArrayUnnest": true,
         "includePaths": null,
         "excludePaths": null,
-        "excludeFields": null
+        "excludeFields": null,
+        "indexPaths": null
       },
       ...
     },
@@ -134,11 +141,13 @@ The first one uses the same JSON explained above, but it is defined inside `tabl
   }
 }
 ```
+
 {% endcode %}
 
 Like in the previous case, all parameters are optional, so the following is also valid:
 
 {% code title="json index with default config" %}
+
 ```json
 {
   "tableIndexConfig": {
@@ -150,15 +159,17 @@ Like in the previous case, all parameters are optional, so the following is also
   }
 }
 ```
+
 {% endcode %}
 
 The last option does not support to configure any parameter.
 In order to use this option, add the name of the column in `tableIndexConfig.jsonIndexColumns` like in this example:
 
 {% code title="json index with default config" %}
+
 ```javascript
 {
-  "tableIndexConfig": {        
+  "tableIndexConfig": {
     "jsonIndexColumns": [
       "person",
       ...
@@ -167,6 +178,7 @@ In order to use this option, add the name of the column in `tableIndexConfig.jso
   }
 }
 ```
+
 {% endcode %}
 
 #### Example:
@@ -366,6 +378,30 @@ With **excludeFields** set to \["age", "street"]:
 }
 ```
 
+With **indexPaths** set to \["*", "address..country"]:
+
+```json
+{
+  "name": "adam",
+  "age": 20,
+  "addresses[0].country": "us",
+},
+{
+  "name": "adam",
+  "age": 20,
+  "addresses[0].country": "us",
+},
+{
+  "name": "adam",
+  "age": 20,
+  "addresses[1].country": "ca",
+},
+{
+  "name": "adam",
+  "age": 20,
+  "addresses[1].country": "ca",
+}
+```
 
 Note that the JSON index can only be applied to `STRING/JSON` columns whose values are JSON strings.
 
@@ -380,18 +416,18 @@ For instructions on that configuration property, see the [Raw value forward inde
 The JSON index can be used via the `JSON_MATCH` predicate for filtering: `JSON_MATCH(<column>, '<filterExpression>')`. For example, to find every entry with the name "adam":
 
 ```sql
-SELECT ... 
-FROM mytable 
+SELECT ...
+FROM mytable
 WHERE JSON_MATCH(person, '"$.name"=''adam''')
 ```
 
 Note that the quotes within the filter expression need to be escaped.
 
-The JSON index can also be used via the `JSON_EXTRACT_INDEX` predicate for value extraction (optionally with filtering): `JSON_EXTRACT_INDEX(<column>, '<jsonPath>', ['resultsType'], ['filter'])`. For example, to extract every value for path `$.name` when the path `$.id` is less than 10: 
+The JSON index can also be used via the `JSON_EXTRACT_INDEX` predicate for value extraction (optionally with filtering): `JSON_EXTRACT_INDEX(<column>, '<jsonPath>', ['resultsType'], ['filter'])`. For example, to extract every value for path `$.name` when the path `$.id` is less than 10:
 
 ```sql
 SELECT jsonextractindex(repo, '$.name', 'STRING', 'dummyValue', '"$.id" < 10')
-FROM mytable 
+FROM mytable
 ```
 
 More in-depth examples can be found in the [JSON_EXTRACT_INDEX function documentation](../../configuration-reference/functions/jsonextractindex.md).
@@ -403,8 +439,8 @@ More in-depth examples can be found in the [JSON_EXTRACT_INDEX function document
 Find all persons whose name is "adam":
 
 ```sql
-SELECT ... 
-FROM mytable 
+SELECT ...
+FROM mytable
 WHERE JSON_MATCH(person, '"$.name"=''adam''')
 ```
 
@@ -446,14 +482,13 @@ FROM mytable
 WHERE JSON_MATCH(person, '"$.age" > 18')
 ```
 
-
 ### Nested filter expression
 
 Find all persons whose name is "adam" and also have an address (one of the addresses) with number 112:
 
 ```sql
-SELECT ... 
-FROM mytable 
+SELECT ...
+FROM mytable
 WHERE JSON_MATCH(person, '"$.name"=''adam'' AND "$.addresses[*].number"=112')
 ```
 
@@ -466,8 +501,8 @@ WHERE JSON_MATCH(person, '"$.name"=''adam'' AND "$.addresses[*].number"=112')
 Find all persons whose first address has number 112:
 
 ```sql
-SELECT ... 
-FROM mytable 
+SELECT ...
+FROM mytable
 WHERE JSON_MATCH(person, '"$.addresses[0].number"=112')
 ```
 
@@ -476,15 +511,15 @@ WHERE JSON_MATCH(person, '"$.addresses[0].number"=112')
 Find all persons who have a phone field within the JSON:
 
 ```sql
-SELECT ... 
-FROM mytable 
+SELECT ...
+FROM mytable
 WHERE JSON_MATCH(person, '"$.phone" IS NOT NULL')
 ```
 
 Find all persons whose first address does not contain floor field within the JSON:
 
 ```sql
-SELECT ... 
+SELECT ...
 FROM mytable
 WHERE JSON_MATCH(person, '"$.addresses[0].floor" IS NULL')
 ```
@@ -496,8 +531,8 @@ The JSON context is maintained for object elements within an array, meaning the 
 To find all persons who live on "main st" in "ca":
 
 ```sql
-SELECT ... 
-FROM mytable 
+SELECT ...
+FROM mytable
 WHERE JSON_MATCH(person, '"$.addresses[*].street"=''main st'' AND "$.addresses[*].country"=''ca''')
 ```
 
@@ -506,8 +541,8 @@ This query won't match "adam" because none of his addresses matches both the str
 If you don't want JSON context, use multiple separate `JSON_MATCH` predicates. For example, to find all persons who have addresses on "main st" and have addresses in "ca" (matches need not have the same address):
 
 ```sql
-SELECT ... 
-FROM mytable 
+SELECT ...
+FROM mytable
 WHERE JSON_MATCH(person, '"$.addresses[*].street"=''main st''') AND JSON_MATCH(person, '"$.addresses[*].country"=''ca''')
 ```
 
@@ -516,8 +551,8 @@ This query will match "adam" because one of his addresses matches the street and
 The array index is maintained as a separate entry within the element, so in order to query different elements within an array, multiple `JSON_MATCH` predicates are required. For example, to find all persons who have first address on "main st" and second address on "second st":
 
 ```sql
-SELECT ... 
-FROM mytable 
+SELECT ...
+FROM mytable
 WHERE JSON_MATCH(person, '"$.addresses[0].street"=''main st''') AND JSON_MATCH(person, '"$.addresses[1].street"=''second st''')
 ```
 
@@ -536,16 +571,16 @@ See examples above.
 To find the records with array element "item1" in "arrayCol":
 
 ```sql
-SELECT ... 
-FROM mytable 
+SELECT ...
+FROM mytable
 WHERE JSON_MATCH(arrayCol, '"$[*]"=''item1''')
 ```
 
 To find the records with second array element "item2" in "arrayCol":
 
 ```sql
-SELECT ... 
-FROM mytable 
+SELECT ...
+FROM mytable
 WHERE JSON_MATCH(arrayCol, '"$[1]"=''item2''')
 ```
 
@@ -560,8 +595,8 @@ WHERE JSON_MATCH(arrayCol, '"$[1]"=''item2''')
 To find the records with value 123 in "valueCol":
 
 ```sql
-SELECT ... 
-FROM mytable 
+SELECT ...
+FROM mytable
 WHERE JSON_MATCH(valueCol, '"$"=123')
 ```
 
@@ -574,8 +609,8 @@ null
 To find the records with null in "nullableCol":
 
 ```sql
-SELECT ... 
-FROM mytable 
+SELECT ...
+FROM mytable
 WHERE JSON_MATCH(nullableCol, '"$" IS NULL')
 ```
 
