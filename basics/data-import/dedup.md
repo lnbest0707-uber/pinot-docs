@@ -2,7 +2,7 @@
 description: Deduplication support in Apache Pinot.
 ---
 
-# Stream ingestion with deduplication
+# Stream ingestion with Dedup
 
 Pinot provides native support for deduplication (dedup) during the real-time ingestion (v0.11.0+).
 
@@ -67,8 +67,6 @@ To enable dedup for a REALTIME table, add the following to the table config.
 {% endcode %}
 
 Supported values for `hashFunction` are `NONE`, `MD5` and `MURMUR3`, with the default being `NONE`.
-
-## Best practices
 
 Unlike other real-time tables, Dedup table takes up more memory resources as it needs to bookkeep the primary key and its corresponding segment reference, in memory. As a result, it's important to plan the capacity beforehand, and monitor the resource usage. Here are some recommended practices of using Dedup table.
 
