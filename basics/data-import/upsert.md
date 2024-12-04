@@ -404,8 +404,9 @@ We recommend that you enable this feature so as to speed up server boot times du
 {% hint style="info" %}
 The lifecycle for validDocIds snapshots are shows as follows,
 
-1. If snapshot is not enabled, delete validDocIds snapshots during add segments if exists.
-2. If snapshot is enabled, persist validDocIds snapshot for immutable segments when removing segment.
+1. If snapshot is enabled, snapshots for existing segments are taken or refreshed when the next consuming segment gets started.
+2. The snapshot files are kept on disk until the segments get removed, e.g. due to data retention or manual deletion.
+3. If snapshot is disabled, the existing snapshot for a segment is cleaned up when the segment gets loaded by the server, e.g. when the server restarts.
 {% endhint %}
 
 ### Enable preload for faster server restarts
@@ -761,7 +762,7 @@ An example for partial upsert is shown below, each of the event\_id kept being u
 
 To see the difference from the non-upsert table, you can use a query option `skipUpsert` to skip the upsert effect in the query result.
 
-![Disable the upsert during query via query option](../../disable\_upsert\_during\_query.png)
+![Disable the upsert during query via query option](../../disable_upsert_during_query.png)
 
 ### FAQ
 
