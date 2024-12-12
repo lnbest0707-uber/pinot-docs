@@ -12,7 +12,7 @@ When a column is configured to use this filter, Pinot creates one Bloom filter p
 
 
 
-This is useful for a query patterns like below:
+This is useful for query patterns like below where Bloom Filter is defined on playerID column in the table:
 
 <pre class="language-sql"><code class="lang-sql"><strong>SELECT COUNT(*) 
 </strong>FROM baseballStats 
