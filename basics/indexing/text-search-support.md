@@ -4,10 +4,10 @@ description: This page talks about support for text search in Pinot.
 
 # Text search support
 
-{% hint style="note" %}
+{% hint style="info" %}
 This text index method is recommended over the experimental [native text index](native-text-index.md).
 
-Click to skip the background info and go straight to the procedure [to enable this text index](#enable-a-text-index).
+Click to skip the background info and go straight to the procedure [to enable this text index](text-search-support.md#enable-a-text-index).
 {% endhint %}
 
 ## Why do we need text search?
@@ -408,7 +408,7 @@ WHERE TEXT_MATCH(SKILLS_COL, 'Java')
 
 The Boolean operators `AND` and `OR` are supported and we can use them to build a composite query. Boolean operators can be used to combine phrase and term queries in any arbitrary manner
 
-This example queries the `SKILL\_COL` column to look for documents where each matching document MUST contain the phrases "distributed systems" and "tensor flow". This combines two phrases using the `AND` Boolean operator.
+This example queries the `SKILL\_COL` column to look for documents where each matching document MUST contain the phrases "machine learning" and "tensor flow". This combines two phrases using the `AND` Boolean operator.
 
 ```sql
 SELECT SKILLS_COL 
@@ -513,7 +513,8 @@ WHERE text_match(SKILLS_COL, '/.*Exception/')
 The above query will match any text document containing "exception".
 
 ### Phrase search with wildcard term matching
-Phrase search with wildcard and prefix term matching can match patterns like "*pache pino*" to the text "Apache Pinot" directly. The kind of queries is very common in use case like log search where user needs to search substrings across term boundary in long text. To enable such search (which can be more costly because Lucene by default does not allow * to start a pattern to avoid costly term matching), one can add a new config key to the column text index config:
+
+Phrase search with wildcard and prefix term matching can match patterns like "_pache pino_" to the text "Apache Pinot" directly. The kind of queries is very common in use case like log search where user needs to search substrings across term boundary in long text. To enable such search (which can be more costly because Lucene by default does not allow \* to start a pattern to avoid costly term matching), one can add a new config key to the column text index config:
 
 ```json
 "fieldConfigList":[
@@ -527,13 +528,16 @@ Phrase search with wildcard and prefix term matching can match patterns like "*p
   }
 ]
 ```
-With this config enabled, one can now perform the pharse wildcard search using the following syntax like 
+
+With this config enabled, one can now perform the pharse wildcard search using the following syntax like
+
 ```sql
 SELECT SKILLS_COL 
 FROM MyTable 
 WHERE text_match(SKILLS_COL, '*pache pino*')
 ```
-to match the string "Apache pinot" in the SIKLLS_COL. Boolean expressions like '*pache pino* AND *apche luce*' are are supported.
+
+to match the string "Apache pinot" in the SIKLLS\_COL. Boolean expressions like '_pache pino_ AND _apche luce_' are are supported.
 
 ### Deciding Query Types
 
