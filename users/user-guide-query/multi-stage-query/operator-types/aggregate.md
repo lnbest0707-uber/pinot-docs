@@ -30,7 +30,9 @@ Type: Integer
 
 Default: 100,000
 
-Defines the max number of groups that can be created by the `group by` clause. If the number of groups exceeds this limit, the query will not fail but will stop the execution.
+Defines the max number of groups that can be created by the `group by` clause. If the number of groups exceeds this limit, new groups will be ignored and only existing groups updated.&#x20;
+
+This property is applied per operator, which means that if there parallelism is 4 (and therefore there are 4 incarnations of the Aggregate operator), they can pass 4 times the value of this property to the next operator.
 
 Example:
 
