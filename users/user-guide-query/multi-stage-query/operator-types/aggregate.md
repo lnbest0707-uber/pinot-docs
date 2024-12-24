@@ -165,6 +165,6 @@ Has two aggregation functions: `COUNT()` and `MAX()`. The second is applied to t
 
 ### Try to not use aggregation functions that cannot be parallelized
 
-For example, it is recommended to use one of the different hyperloglog flavor instead of `count(distinct)` when the cardinality of the data or their size.
+For example, it is recommended to use one of the different hyperloglog flavor instead of `count(distinct)` when the cardinality of the data is high or data size is big.
 
 For example, it is cheaper to execute `count(distinct)` on an int column with 1000 distinct values than on a column that stores very long strings, even if the number of distinct values is the same.
