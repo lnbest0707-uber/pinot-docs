@@ -37,7 +37,7 @@ This value can be overridden on a query by query basis by passing the following 
 SELECT * 
 FROM ...
 
-OPTION(minServerGroupTrimSize=<minServerGroupTrimSize>)
+OPTION(minServerGroupTrimSize=<value>)
 ```
 
 When cross segments trim is enabled, the server will trim the tail groups before sending the results back to the broker. It will also trim the tail groups when the number of groups reaches the `<trimThreshold>`.
