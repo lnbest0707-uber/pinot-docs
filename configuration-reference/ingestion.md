@@ -33,6 +33,10 @@ Since `release-1.2.0`, we introduced `realtime.segment.flush.threshold.segment.r
 Take the above example, if you set `realtime.segment.flush.threshold.segment.rows = 1000` and each server consumes 10 partitions, the rows per segment is `1000`.
 {% endhint %}
 
+{% hint style="info" %}
+Since [this PR](https://github.com/apache/pinot/pull/13790), `streamConfigMaps` could contain multiple maps pointing to multiple Kafka topics. This would allow creating one single Pinot table with data from multiple stream topics.
+{% endhint %}
+
 ### Example table config with `ingestionConfig`
 
 ```json
