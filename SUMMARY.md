@@ -187,7 +187,6 @@
   * [Ingestion Transformations](developers/advanced/ingestion-level-transformations.md)
   * [Null value support](developers/advanced/null-value-support.md)
   * [Use the multi-stage query engine (v2)](developers/advanced/v2-multi-stage-query-engine.md)
-  * [Troubleshoot issues with the multi-stage query engine (v2)](developers/advanced/troubleshoot-issues-with-the-multi-stage-query-engine-v2.md)
   * [Advanced Pinot Setup](developers/advanced/advanced-pinot-setup.md)
 * [Plugins](developers/plugin-architecture/README.md)
   * [Write Custom Plugins](developers/plugin-architecture/write-custom-plugins/README.md)
