@@ -130,7 +130,7 @@ JOIN orders /*+ tableOptions(partition_function='hashcode', partition_key='o_cus
     ON customer.c_custkey = orders.o_custkey
 ```
 
-Pinot can also be configured to automatically apply this optimization when it makes sense by changing the broker configuration property `pinot.broker.multistage.implicit.colocate` to true.
+Pinot can also be configured to automatically apply this optimization when it makes sense by changing the broker configuration property `pinot.broker.multistage.infer.partition.hint` to true.
 
 As explained, the main difference when this optimization is enabled is that data doesn't need to be shuffled to execute the join. That can be verified by with the `rawMessages` and `inMemoryMessages` stats on the mailbox send operator for this stage. All messages should be `inMemoryMessages` and `rawMessages` should be 0 (or being not listed at all).
 
