@@ -176,6 +176,16 @@ export JAVA_OPTS="-Xms4G -Xmx16G"
     -zkAddress localhost:2191
 ```
 
+### Start Pinot Minion
+
+```
+export JAVA_OPTS="-Xms4G -Xmx4G"
+./bin/pinot-admin.sh StartMinion \
+    -zkAddress localhost:2191
+```
+
+
+
 ### Start Kafka
 
 ```
@@ -185,6 +195,17 @@ export JAVA_OPTS="-Xms4G -Xmx16G"
 ```
 
 Once your cluster is up and running, you can head over to [Exploring Pinot](../components/exploring-pinot.md) to learn how to run queries against the data.
+
+## Setup cluster with config files
+
+Users could start and customize the cluster by modifying the config files and start the components with config files:
+
+```shell
+./bin/pinot-admin.sh StartController -config conf/pinot-controller.conf
+./bin/pinot-admin.sh StartBroker -config conf/pinot-broker.conf
+./bin/pinot-admin.sh StartServer -config conf/pinot-server.conf
+./bin/pinot-admin.sh StartMinion -config conf/pinot-minion.conf
+```
 
 ## Start a Pinot component in debug mode with IntelliJ
 
